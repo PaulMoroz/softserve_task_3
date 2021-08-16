@@ -81,42 +81,43 @@ void parseFile(){
         stat.numberOfEmptyLines = 0;
         ifstream in(curr);
         string s;
-        getline(in,s);
-        s = trim(s);
-        bool openComment = false;
-        if(s.empty() && !openComment){
-            stat.numberOfEmptyLines++;
-        }else{
-            int multiLineIndexStart = findFirstIndex(s,"/*");
-            int oneLineIndex = findFirstIndex(s,"//");
-            int multiLineIndexEnd = findFirstIndex(s,"*/");
-            bool isCode = true;
-            if(multiLineIndexStart==min({multiLineIndexEnd,multiLineIndexStart,oneLineIndex}) && multiLineIndexStart<s.size()) {
-                if(multiLineIndexStart!=0 && openComment==false)
-                    isCode = true;
-                openComment = true;
-                if(multiLineIndexEnd!=INT_MAX && multiLineIndexEnd!=s.size() - 2) {
-                    openComment = false;
-                    isCode = true;
-                }
-                stat.numberOfCommentLines++;
-            }else
-                if(multiLineIndexEnd==min({multiLineIndexEnd,multiLineIndexStart,oneLineIndex}) && multiLineIndexEnd<s.size()){
-                    openComment = false;
-                    stat.numberOfCommentLines++;
-                    if(multiLineIndexStart==multiLineIndexEnd+2) {
-                        openComment = true;
-                        isCode = false;
-                    }
-                    if(oneLineIndex==multiLineIndexEnd+2)
-                        isCode = false;
-            }else
-                if(oneLineIndex==min({multiLineIndexEnd,multiLineIndexStart,oneLineIndex}) && oneLineIndex<s.size()){
-                    stat.numberOfCommentLines++;
-                    if(oneLineIndex!=0 && !openComment)
+        while(getline(in,s)){
+            s = trim(s);
+            bool openComment = false;
+            if(s.empty() && !openComment){
+                stat.numberOfEmptyLines++;
+            }else{
+                int multiLineIndexStart = findFirstIndex(s,"/*");
+                int oneLineIndex = findFirstIndex(s,"//");
+                int multiLineIndexEnd = findFirstIndex(s,"*/");
+                bool isCode = true;
+                if(multiLineIndexStart==min({multiLineIndexEnd,multiLineIndexStart,oneLineIndex}) && multiLineIndexStart<s.size()) {
+                    if(multiLineIndexStart!=0 && openComment==false)
                         isCode = true;
-                }
-                stat.numberOfCodeLines+=isCode;
+                    openComment = true;
+                    if(multiLineIndexEnd!=INT_MAX && multiLineIndexEnd!=s.size() - 2) {
+                        openComment = false;
+                        isCode = true;
+                    }
+                    stat.numberOfCommentLines++;
+                }else
+                    if(multiLineIndexEnd==min({multiLineIndexEnd,multiLineIndexStart,oneLineIndex}) && multiLineIndexEnd<s.size()){
+                        openComment = false;
+                        stat.numberOfCommentLines++;
+                        if(multiLineIndexStart==multiLineIndexEnd+2) {
+                            openComment = true;
+                            isCode = false;
+                        }
+                        if(oneLineIndex==multiLineIndexEnd+2)
+                            isCode = false;
+                    }else
+                        if(oneLineIndex==min({multiLineIndexEnd,multiLineIndexStart,oneLineIndex}) && oneLineIndex<s.size()){
+                            stat.numberOfCommentLines++;
+                            if(oneLineIndex!=0 && !openComment)
+                                isCode = true;
+                        }
+                        stat.numberOfCodeLines+=isCode;
+            }
         }
         m[curr] = stat;
     }
@@ -200,7 +201,7 @@ int main() {
         outputFile<<pi.first<<endl;
         outputFile<<"Comment lines: "<<pi.second.numberOfCommentLines<<endl;
         outputFile<<"Code lines: "<<pi.second.numberOfCodeLines<<endl;
-        outputFile<<"Comment lines: "<<pi.second.numberOfEmptyLines<<endl;
+        outputFile<<"Empty lines: "<<pi.second.numberOfEmptyLines<<endl;
     }
     auto end = chrono::steady_clock::now();
     outputFile<<"=====================\n";
